@@ -1,0 +1,12 @@
+{
+	"private": true,
+	"scripts": {
+		"build": "node scripts/build.mjs"
+	},
+	"devDependencies": {
+		"@turbowarp/types": "github:TurboWarp/types-tw#tw",
+		"esbuild": "^0.27.3",
+		"jszip": "^3.10.1",
+		"rimraf": "^6.1.3"
+	}
+}
