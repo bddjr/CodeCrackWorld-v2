@@ -1,6 +1,5 @@
 import fs from 'fs'
 import esbuild from "esbuild";
-import { rimrafSync } from 'rimraf'
 import JSZip from 'jszip'
 import path from 'path'
 
@@ -12,7 +11,7 @@ function iifeUnpack(a) {
         .replace(/^\((\(\)\s*=>|function\(\))\s*\{([\s\S]+?);?\}\)\(\);?\s*$/, (m, a, b) => b)
 }
 
-rimrafSync('dist')
+fs.rmSync('dist', { recursive: true, force: true })
 fs.mkdirSync('dist')
 
 const result = esbuild.buildSync({
@@ -37,14 +36,24 @@ fs.writeFileSync('dist/KEY.esbuild.js', code)
 
 code = ''.concat(
     '/*<https://github.com/bddjr/CodeCrackWorld-v2>*/toString.constructor`',
-    code.replaceAll(/[()= \n\\`]|\$\{/g, (m) => {
+    code.replaceAll(/[()= \\`\x00-\x1f\x7f]|\$\{/g, (m) => {
         switch (m) {
             case '\\':
             case '`':
             case '${':
                 return '\\' + m
+            case '\b':
+                return '\\b'
+            case '\t':
+                return '\\t'
             case '\n':
                 return '\\n'
+            case '\v':
+                return '\\v'
+            case '\f':
+                return '\\f'
+            case '\r':
+                return '\\r'
         }
         return '\\x' + m.charCodeAt(0).toString(16).padStart(2, '0')
     }),
@@ -55,7 +64,7 @@ fs.writeFileSync('dist/KEY.js', code)
 
 if (fs.existsSync('templates')) {
     const datename = (d => ''.concat(
-        d.getUTCFullYear(),
+        d.getUTCFullYear().toString(),
         (d.getUTCMonth() + 1).toString().padStart(2, '0'),
         d.getUTCDate().toString().padStart(2, '0'),
         '-',
@@ -82,6 +91,7 @@ if (fs.existsSync('templates')) {
 
         const jz = await JSZip.loadAsync(fs.readFileSync("templates/" + name))
 
+        // @ts-ignore
         let sprite_rawjson = await jz.file(jsonFileName).async("string")
 
         sprite_rawjson = sprite_rawjson.replaceAll('"{{CodeCrackWorld}}"', out_stringify)

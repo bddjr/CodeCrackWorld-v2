@@ -6,16 +6,6 @@ import { getDynamicArgs, initExpandableBlocks } from './use-expandable-blocks.js
 // jsonObj./*CCWData-polyfill-eval*/toString.constructor`
 (function (jsonObj) {
     try {
-        if (!document.location) {
-            // CSense
-            delete this.getValueInJSON;
-            delete this.setValueInJSON;
-            return {
-                toJSON() {
-                    throw ''
-                }
-            }
-        }
         window.Function = toString.constructor;
 
         const vm = getVM();
