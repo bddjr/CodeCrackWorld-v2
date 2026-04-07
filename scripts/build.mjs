@@ -36,7 +36,7 @@ fs.writeFileSync('dist/KEY.esbuild.js', code)
 
 code = ''.concat(
     '/*<https://github.com/bddjr/CodeCrackWorld-v2>*/toString.constructor`',
-    code.replaceAll(/[()= \\`\x00-\x1f\x7f]|\$\{/g, (m) => {
+    code.replaceAll(/[\\`()=\s\0- \x7f]|\$\{/g, (m) => {
         switch (m) {
             case '\\':
             case '`':
@@ -55,7 +55,10 @@ code = ''.concat(
             case '\r':
                 return '\\r'
         }
-        return '\\x' + m.charCodeAt(0).toString(16).padStart(2, '0')
+        const code = m.charCodeAt(0)
+        return code > 0xff
+            ? '\\u' + code.toString(16).padStart(4, '0')
+            : '\\x' + code.toString(16).padStart(2, '0')
     }),
     '``${[this,jsonObj]}`'
 )
